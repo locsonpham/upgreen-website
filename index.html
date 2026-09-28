@@ -29,6 +29,7 @@
           </ul>
         </li>
         <li><a href="#services">Dịch vụ</a></li>
+        <li><a href="#passport">Green Passport</a></li>
         <li><a href="#news">Blog</a></li>
         <li><a href="#faq">Câu hỏi</a></li>
         <li><a href="#footer">Liên hệ</a></li>
@@ -103,6 +104,33 @@
       <div class="step"><span class="num">04</span><img src="images/process/step-4.webp" alt="" width="64" height="64" loading="lazy"><h3>Thiết kế</h3><p>Mô tả bước thiết kế sản phẩm.</p></div>
       <div class="step"><span class="num">05</span><img src="images/process/step-5.webp" alt="" width="64" height="64" loading="lazy"><h3>Hoàn thiện</h3><p>Mô tả bước sản xuất và giao hàng.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ============ GREEN PASSPORT ============ -->
+<section class="passport" id="passport">
+  <div class="wrap-content">
+    <div class="sec-title"><p class="title-a"><span>Green</span> Passport</p><h2 class="title-b">Hộ chiếu xanh của sản phẩm</h2>
+      <p class="sec-desc">Nhập mã in trên sản phẩm hoặc quét mã QR để xem sản phẩm của bạn được tái chế từ những gì và hành trình đằng sau nó.</p></div>
+
+    <form class="gp-search" id="gpForm" autocomplete="off">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="gpInput" placeholder="Nhập mã sản phẩm, ví dụ UG-RENO-001" aria-label="Mã sản phẩm">
+      <button type="submit" class="btn">Tra cứu</button>
+      <button type="button" class="btn btn-outline" id="gpScanBtn"><i class="fa-solid fa-qrcode"></i> Quét QR</button>
+    </form>
+    <p class="gp-hint">Mã mẫu: <button type="button" data-code="UG-RENO-001">UG-RENO-001</button> <button type="button" data-code="UG-CHAIR-102">UG-CHAIR-102</button> <button type="button" data-code="UG-GIFT-205">UG-GIFT-205</button></p>
+
+    <div class="gp-scanner" id="gpScanner" hidden>
+      <div class="gp-video"><video id="gpVideo" playsinline muted></video><span class="gp-frame"></span></div>
+      <p id="gpScanStatus">Đưa mã QR vào khung hình…</p>
+      <div class="gp-scan-actions">
+        <label class="btn btn-sm btn-outline"><i class="fa-regular fa-image"></i> Chọn ảnh QR<input type="file" id="gpFile" accept="image/*" hidden></label>
+        <button type="button" class="btn btn-sm" id="gpScanClose">Đóng</button>
+      </div>
+    </div>
+
+    <div id="gpResult" aria-live="polite"></div>
   </div>
 </section>
 
@@ -247,6 +275,8 @@
 
 <a href="#" class="to-top" id="toTop" aria-label="Lên đầu trang"><i class="fa-solid fa-arrow-up"></i></a>
 
+<script src="passport-data.js"></script>
 <script src="main.js"></script>
+<script src="passport.js"></script>
 </body>
 </html>
