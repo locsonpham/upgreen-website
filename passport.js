@@ -7,16 +7,15 @@
   const video = document.getElementById('gpVideo');
   const scanStatus = document.getElementById('gpScanStatus');
   const data = window.PASSPORTS || {};
+  const { t } = window.i18n;
+  let lastCode = null;
 
-  const STEPS = [
-    { title: 'Thu gom & phân loại', icon: 'fa-dumpster' },
-    { title: 'Xử lý thành vật liệu tái chế', icon: 'fa-recycle' },
-    { title: 'Sản xuất', icon: 'fa-industry' },
-    { title: 'Sản phẩm UpGreen', icon: 'fa-leaf' }
-  ];
+  const STEP_ICONS = ['fa-dumpster', 'fa-recycle', 'fa-industry', 'fa-leaf'];
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const fmt = n => n.toLocaleString('vi-VN');
+  const fmt = n => n.toLocaleString(i18n.lang === 'en' ? 'en-US' : 'vi-VN');
+  // Trường dữ liệu song ngữ { vi, en } -> chuỗi theo ngôn ngữ hiện tại
+  const L = v => (v && typeof v === 'object') ? (v[i18n.lang] ?? v.vi) : v;
 
   // QR có thể chứa mã thuần hoặc URL có ?passport= / ?code=
   function extractCode(raw) {
@@ -33,6 +32,7 @@
     const code = extractCode(raw);
     if (!code) { input.focus(); return; }
     input.value = code;
+    lastCode = code;
     const p = data[code];
     result.innerHTML = p ? renderPassport(code, p) : renderNotFound(code);
     const url = new URL(location.href);
@@ -44,41 +44,41 @@
   function renderNotFound(code) {
     return `<div class="gp-card gp-notfound">
       <i class="fa-solid fa-circle-exclamation"></i>
-      <div><h3>Không tìm thấy mã sản phẩm</h3>
-      <p>Mã <b>${esc(code)}</b> không có trong hệ thống. Vui lòng kiểm tra lại mã in trên sản phẩm hoặc quét lại mã QR.</p></div>
+      <div><h3>${t('gp.notFound')}</h3>
+      <p>${t('gp.notFoundDesc', { code: esc(code) })}</p></div>
     </div>`;
   }
 
   function renderPassport(code, p) {
-    const materials = p.materials.map(m => `<li><span>${esc(m.name)}</span><b>${m.share}%</b>
+    const materials = p.materials.map(m => `<li><span>${esc(L(m.name))}</span><b>${m.share}%</b>
       <i class="bar"><i style="width:${m.share}%"></i></i></li>`).join('');
-    const journey = STEPS.map((s, i) => {
+    const journey = STEP_ICONS.map((icon, i) => {
       const j = p.journey[i] || {};
-      return `<li><span class="dot"><i class="fa-solid ${s.icon}"></i></span>
-        <div><h5>${s.title}</h5>${j.place ? `<p>${esc(j.place)}</p>` : ''}${j.date ? `<small>${esc(j.date)}</small>` : ''}</div></li>`;
+      return `<li><span class="dot"><i class="fa-solid ${icon}"></i></span>
+        <div><h5>${t('gp.step' + (i + 1))}</h5>${j.place ? `<p>${esc(L(j.place))}</p>` : ''}${j.date ? `<small>${esc(j.date)}</small>` : ''}</div></li>`;
     }).join('');
     return `<article class="gp-card">
       <header class="gp-head">
         <div class="gp-thumb" style="background-image:url(${esc(p.image)})"></div>
         <div>
-          <span class="gp-valid"><i class="fa-solid fa-circle-check"></i> Mã hợp lệ</span>
-          <h3>${esc(p.name)}</h3>
-          <p>${esc(p.collection)} · Mã: <b>${esc(code)}</b></p>
+          <span class="gp-valid"><i class="fa-solid fa-circle-check"></i> ${t('gp.valid')}</span>
+          <h3>${esc(L(p.name))}</h3>
+          <p>${esc(L(p.collection))} · ${t('gp.code')}: <b>${esc(code)}</b></p>
         </div>
       </header>
-      <h4 class="gp-sub">Tác động tái chế</h4>
+      <h4 class="gp-sub">${t('gp.impact')}</h4>
       <div class="gp-grid">
         <section class="gp-box">
-          <h4><i class="fa-solid fa-bottle-water"></i> Sản phẩm được tái chế từ những gì?</h4>
+          <h4><i class="fa-solid fa-bottle-water"></i> ${t('gp.madeFrom')}</h4>
           <ul class="gp-materials">${materials}</ul>
           <div class="gp-impact">
-            <div><b>${fmt(p.bottles)}</b><span>chai nhựa được tái sinh</span></div>
-            <div><b>${fmt(p.plasticKg)} kg</b><span>nhựa không ra bãi rác</span></div>
-            <div><b>${fmt(p.co2Kg)} kg</b><span>CO₂ giảm phát thải</span></div>
+            <div><b>${fmt(p.bottles)}</b><span>${t('gp.bottles')}</span></div>
+            <div><b>${fmt(p.plasticKg)} kg</b><span>${t('gp.plastic')}</span></div>
+            <div><b>${fmt(p.co2Kg)} kg</b><span>${t('gp.co2')}</span></div>
           </div>
         </section>
         <section class="gp-box">
-          <h4><i class="fa-solid fa-route"></i> Hành trình đằng sau sản phẩm</h4>
+          <h4><i class="fa-solid fa-route"></i> ${t('gp.journey')}</h4>
           <ol class="gp-journey">${journey}</ol>
         </section>
       </div>
@@ -98,7 +98,7 @@
     return new Promise((ok, fail) => {
       const s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
-      s.onload = ok; s.onerror = () => fail(new Error('Không tải được thư viện quét QR'));
+      s.onload = ok; s.onerror = () => fail(new Error(t('gp.libError')));
       document.head.appendChild(s);
     });
   }
@@ -134,14 +134,14 @@
 
   async function startScan() {
     scanner.hidden = false;
-    scanStatus.textContent = 'Đang mở camera…';
+    scanStatus.textContent = t('gp.scanOpening');
     try {
       const decode = await getDecoder();
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Trình duyệt không hỗ trợ camera (cần HTTPS)');
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error(t('gp.noCamera'));
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       video.srcObject = stream;
       await video.play();
-      scanStatus.textContent = 'Đưa mã QR vào khung hình…';
+      scanStatus.textContent = t('gp.scanPoint');
       let busy = false;
       const tick = async () => {
         if (!stream) return;
@@ -154,7 +154,7 @@
       };
       tick();
     } catch (err) {
-      scanStatus.textContent = `Không thể mở camera: ${err.message}. Bạn có thể chọn ảnh chứa mã QR.`;
+      scanStatus.textContent = t('gp.cameraError', { msg: err.message });
     }
   }
 
@@ -164,18 +164,21 @@
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    scanStatus.textContent = 'Đang đọc ảnh…';
+    scanStatus.textContent = t('gp.reading');
     try {
       const img = new Image();
       img.src = URL.createObjectURL(file);
       await img.decode();
       const text = await (await getDecoder())(img);
       URL.revokeObjectURL(img.src);
-      text ? onDecoded(text) : (scanStatus.textContent = 'Không tìm thấy mã QR trong ảnh. Hãy thử ảnh khác.');
+      text ? onDecoded(text) : (scanStatus.textContent = t('gp.noQr'));
     } catch (err) {
-      scanStatus.textContent = `Không đọc được ảnh: ${err.message}`;
+      scanStatus.textContent = t('gp.readError', { msg: err.message });
     }
   };
+
+  // Đổi ngôn ngữ: vẽ lại kết quả đang hiển thị
+  document.addEventListener('langchange', () => { if (lastCode) lookup(lastCode); });
 
   // Deep link từ QR in trên sản phẩm: ?passport=UG-RENO-001
   const initial = new URLSearchParams(location.search).get('passport');

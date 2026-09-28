@@ -57,6 +57,7 @@ section { padding: 70px 0; }
 .icon-btn:hover { background: var(--green); color: #fff; }
 .lang { font-weight: 600; font-size: 14px; color: var(--muted); }
 .lang .on { color: var(--green); }
+.menu-lang { display: none; }
 .burger { display: none; }
 .search-bar { max-height: 0; overflow: hidden; transition: max-height .3s; background: var(--bg-soft); }
 .search-bar.open { max-height: 80px; }
@@ -301,6 +302,9 @@ section { padding: 70px 0; }
   .header-inner { height: 70px; }
   .menu { top: 70px; }
   .lang { display: none; }
+  .menu > ul > li.menu-lang { display: flex; gap: 8px; padding: 10px 16px; }
+  .menu-lang a { padding: 6px 16px; border: 1.5px solid var(--line); border-radius: 30px; font-weight: 700; font-size: 14px; color: var(--muted); }
+  .menu-lang a.on { background: var(--green); border-color: var(--green); color: #fff; }
   .banner { flex-basis: 100%; }
   .accordion { flex-direction: column; height: auto; }
   .acc-item { min-height: 70px; }

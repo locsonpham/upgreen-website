@@ -54,16 +54,22 @@ document.querySelectorAll('.acc-item').forEach(item => {
 
 // Partner marquee (duplicated for seamless loop)
 const partners = [
-  ['bo-tnmt', 'Bộ Tài nguyên và Môi trường'], ['storii', 'Storii'], ['bo-nnptnt', 'Bộ Nông nghiệp và PTNT'],
+  ['bo-tnmt', { vi: 'Bộ Tài nguyên và Môi trường', en: 'Ministry of Natural Resources and Environment' }], ['storii', 'Storii'],
+  ['bo-nnptnt', { vi: 'Bộ Nông nghiệp và PTNT', en: 'Ministry of Agriculture and Rural Development' }],
   ['tetra-pak', 'Tetra Pak'], ['fwd', 'FWD'], ['coca-cola', 'Coca-Cola'], ['pepsico-food', 'Pepsico Food'],
   ['wwf', 'WWF'], ['suntory-pepsico', 'Suntory Pepsico'], ['audi', 'Audi'], ['mercedes', 'Mercedes'], ['unilever', 'Unilever']
 ];
-['marquee', 'marquee2'].forEach((id, n) => {
-  const el = document.getElementById(id);
-  const list = n ? [...partners].reverse() : partners;
-  el.innerHTML = [...list, ...list].map(([f, name]) =>
-    `<div class="plogo"><img src="images/partners/${f}.webp" alt="${name}" title="${name}" loading="lazy"></div>`).join('');
-});
+function renderPartners() {
+  const label = n => typeof n === 'object' ? n[i18n.lang] ?? n.vi : n;
+  ['marquee', 'marquee2'].forEach((id, n) => {
+    const el = document.getElementById(id);
+    const list = n ? [...partners].reverse() : partners;
+    el.innerHTML = [...list, ...list].map(([f, name]) =>
+      `<div class="plogo"><img src="images/partners/${f}.webp" alt="${label(name)}" title="${label(name)}" loading="lazy"></div>`).join('');
+  });
+}
+renderPartners();
+document.addEventListener('langchange', renderPartners);
 
 // Reveal on scroll + counters
 const io = new IntersectionObserver(entries => entries.forEach(e => {
